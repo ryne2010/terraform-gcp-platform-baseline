@@ -1,0 +1,57 @@
+name: terraform-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init (no backend)
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      # --- Security scanning ---
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          additional_args: --exclude-downloaded-modules
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          quiet: true
+
+      - name: Install conftest
+        run: |
+          VERSION=0.56.0
+          curl -L "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/conftest_${VERSION}_Linux_x86_64.tar.gz" | tar zx
+          sudo mv conftest /usr/local/bin/conftest
+          conftest --version
+
+      - name: Conftest policy gate (OPA)
+        run: conftest test --parser hcl2 -p policy .
+
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker build (terraform tooling image)
+        run: docker build -t gcp-terraform-baseline -f docker/Dockerfile .
