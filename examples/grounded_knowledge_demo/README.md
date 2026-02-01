@@ -6,32 +6,37 @@ Deploys the `grounded-knowledge-platform` container to Cloud Run in **PUBLIC_DEM
 - **demo corpus bootstrapped at startup**
 - optional OCR
 
+This example is designed to be driven via the repo root **Makefile** (remote state, plan/apply separation).
+
+---
+
 ## 1) Build & push the image (Artifact Registry)
-From the *grounded-knowledge-platform* repo:
+
+Recommended (macOS-friendly) Cloud Build approach:
 
 ```bash
-# Configure Docker auth
-gcloud auth configure-docker us-central1-docker.pkg.dev
+# Replace PROJECT_ID
+IMAGE="us-central1-docker.pkg.dev/PROJECT_ID/platform-images/grounded-knowledge-platform:demo"
 
-# Build
-docker build -t grounded-knowledge-platform:demo .
-
-# Tag (replace PROJECT_ID)
-docker tag grounded-knowledge-platform:demo \
-  us-central1-docker.pkg.dev/PROJECT_ID/platform-images/grounded-knowledge-platform:demo
-
-# Push
-docker push us-central1-docker.pkg.dev/PROJECT_ID/platform-images/grounded-knowledge-platform:demo
+# From the grounded-knowledge-platform repo root (not this repo):
+gcloud builds submit --tag "$IMAGE" .
 ```
 
-## 2) Deploy with Terraform
+---
+
+## 2) Deploy with Terraform (remote state)
+
+From this repo (`terraform-gcp-platform`):
+
 ```bash
-terraform init
-terraform apply \
-  -var="project_id=YOUR_PROJECT_ID" \
-  -var="image=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/platform-images/grounded-knowledge-platform:demo"
+# One-time: create a tfstate bucket (or let example-init do it)
+make bootstrap-state
+
+# Apply the example
+make example-apply EXAMPLE=grounded_knowledge_demo \
+  EXTRA_VARS='-var="image=us-central1-docker.pkg.dev/PROJECT_ID/platform-images/grounded-knowledge-platform:demo"'
 ```
 
 ## Notes
-- For a truly minimal-cost demo, keep `min_instances=0` and a low `max_instances`.
-- Add a GCP Billing budget/alerts and rate-limit at the edge (Cloudflare) if you expect traffic.
+- For a minimal-cost demo, keep `min_instances=0` and a low `max_instances`.
+- Add GCP billing budgets/alerts and rate-limit at the edge if you expect traffic.

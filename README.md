@@ -1,5 +1,24 @@
 # Terraform GCP Platform Baseline (Cloud Run-first)
 
+## Quickstart
+
+Run prerequisites + validate:
+
+```bash
+make doctor
+make validate
+```
+
+For GCP-backed examples (remote state):
+
+```bash
+make init GCLOUD_CONFIG=personal-portfolio PROJECT_ID=YOUR_PROJECT_ID REGION=us-central1
+make auth          # only needed once per machine/user
+make doctor-gcp
+make bootstrap-state
+make example-plan EXAMPLE=cloud_run_demo
+```
+
 Opinionated, production-ready Terraform modules and examples for building a **secure, repeatable Google Cloud Platform baseline** optimized for **Cloud Run** workloads.
 
 This repo is designed to support:
@@ -26,6 +45,7 @@ This repo is designed to support:
 - `examples/cloud_run_demo` — minimal baseline + Cloud Run service deployment
 - `examples/grounded_knowledge_demo` — deploy the Grounded Knowledge Platform to Cloud Run in safe **PUBLIC_DEMO_MODE**
 - `examples/github_actions_wif` — configure WIF for GitHub Actions (Terraform plan/apply without SA keys)
+- `examples/landing_zone_lite` — project-scoped landing zone: APIs, IAM, AR, secrets, optional org policies
 
 ### CI
 - `.github/workflows/terraform-ci.yml` runs:
@@ -39,11 +59,20 @@ This repo is designed to support:
 
 ### 0) Prereqs
 - Terraform **>= 1.5**
-- `gcloud` authenticated (`gcloud auth application-default login`)
+- `gcloud` authenticated (`make auth` or `gcloud auth application-default login`)
 - A GCP project (recommended: create one manually in the console)
 
 ### 1) Bootstrap remote state (recommended)
-Create a GCS bucket for Terraform state:
+Create a GCS bucket for Terraform state. You can use either:
+
+**Option A: Makefile (no exports)**
+
+```bash
+# Uses your active gcloud project + region by default
+make bootstrap-state
+```
+
+**Option B: Script**
 
 ```bash
 ./scripts/bootstrap_state_bucket.sh \
@@ -52,14 +81,13 @@ Create a GCS bucket for Terraform state:
   --location us-central1
 ```
 
-Then update the example backend config in `examples/.../backend.tf`.
+> In all examples, the backend is `gcs` with config provided at init time (bucket + prefix).
 
-### 2) Deploy the example Cloud Run service
+### 2) Deploy an example (Cloud Run demo)
 
 ```bash
-cd examples/cloud_run_demo
-terraform init
-terraform apply
+# Uses remote state; override EXAMPLE=..., TF_STATE_BUCKET=..., etc.
+make example-apply EXAMPLE=cloud_run_demo
 ```
 
 ---

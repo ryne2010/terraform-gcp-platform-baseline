@@ -14,7 +14,7 @@ deny[msg] {
 deny[msg] {
   bucket := input.resource.google_storage_bucket[_][_]
   bucket.public_access_prevention != "enforced"
-  msg := "google_storage_bucket must set public_access_prevention = "enforced""
+  msg := "google_storage_bucket must set public_access_prevention = \"enforced\""
 }
 
 deny[msg] {

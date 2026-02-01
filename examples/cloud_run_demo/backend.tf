@@ -1,9 +1,10 @@
-# Optional: remote state backend (recommended).
-# Uncomment and configure after you create a GCS bucket with ./scripts/bootstrap_state_bucket.sh
-
-# terraform {
-#   backend "gcs" {
-#     bucket = "YOUR_TFSTATE_BUCKET"
-#     prefix = "terraform-gcp-platform-baseline/examples/cloud_run_demo"
-#   }
-# }
+// Terraform remote state (GCS)
+//
+// Backend config is intentionally provided at init time (bucket + prefix).
+// Use the repo Makefile:
+//
+//   make example-init EXAMPLE=cloud_run_demo PROJECT_ID=... TF_STATE_BUCKET=... 
+//
+terraform {
+  backend "gcs" {}
+}

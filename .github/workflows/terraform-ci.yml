@@ -20,11 +20,19 @@ jobs:
       - name: Terraform fmt
         run: terraform fmt -check -recursive
 
-      - name: Terraform init (no backend)
-        run: terraform init -backend=false
+      # --- Lint ---
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
 
-      - name: Terraform validate
-        run: terraform validate
+      - name: TFLint init
+        run: tflint --init
+
+      - name: TFLint
+        run: tflint --recursive
+
+      # --- Validate (root + examples) ---
+      - name: Validate (root + examples)
+        run: make validate
 
       # --- Security scanning ---
       - name: tfsec

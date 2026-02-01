@@ -1,16 +1,50 @@
-# Example: GitHub Actions Workload Identity Federation (WIF)
+# GitHub Actions → GCP WIF bootstrap (example)
 
-Configures GitHub Actions OIDC for Terraform runs **without** long-lived keys.
+This example bootstraps keyless CI for a single GitHub repo:
 
-## Run
+- creates a Terraform state bucket (GCS)
+- creates a CI service account
+- creates Workload Identity Pool + Provider (GitHub OIDC)
+- binds the GitHub repo principalSet to the service account
+
+## Usage
+
 ```bash
+cd examples/github_actions_wif
 terraform init
-terraform apply -var="project_id=YOUR_PROJECT_ID" -var="github_repository=OWNER/REPO"
+terraform apply
 ```
 
-## Next steps
-Add these GitHub repo secrets:
-- `GCP_WIF_PROVIDER` = `terraform output -raw workload_identity_provider`
-- `GCP_SA_EMAIL` = `terraform output -raw ci_service_account_email`
+Required variables:
 
-Then use `workflow.example.yml` as a starting point.
+- `project_id`
+- `tfstate_bucket_name`
+- `github_organization`
+- `github_repository`
+
+Example:
+
+```bash
+terraform apply \
+  -var="project_id=my-sandbox-project" \
+  -var="region=us-central1" \
+  -var="tfstate_bucket_name=my-sandbox-tfstate" \
+  -var="github_organization=my-github-org" \
+  -var="github_repository=grounded-knowledge-platform"
+```
+
+## Outputs → GitHub settings
+
+Copy outputs into GitHub repo settings:
+
+- Variables:
+  - `GCP_WIF_PROVIDER`
+  - `GCP_WIF_SERVICE_ACCOUNT`
+
+- Variables:
+  - `PROJECT_ID`
+  - `REGION`
+  - `TFSTATE_BUCKET`
+  - `TFSTATE_PREFIX`
+
+Then you can use the apply + drift workflows in the app repos.

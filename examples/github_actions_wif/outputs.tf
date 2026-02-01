@@ -1,9 +1,14 @@
-output "ci_service_account_email" {
-  value       = module.service_accounts.ci_service_account_email
-  description = "CI service account email."
+output "wif_provider_resource_name" {
+  description = "Set this as GitHub Variable: GCP_WIF_PROVIDER"
+  value       = module.github_oidc.workload_identity_provider
 }
 
-output "workload_identity_provider" {
-  value       = module.github_oidc.workload_identity_provider
-  description = "WIF provider name for GitHub Actions."
+output "wif_service_account_email" {
+  description = "Set this as GitHub Variable: GCP_WIF_SERVICE_ACCOUNT"
+  value       = google_service_account.ci.email
+}
+
+output "tfstate_bucket" {
+  description = "Set this as GitHub Variable: TFSTATE_BUCKET"
+  value       = google_storage_bucket.tfstate.name
 }

@@ -1,19 +1,21 @@
 # Example: Cloud Run Demo
 
-Minimal example that:
+Minimal baseline that:
 - enables required APIs
-- creates a VPC + subnet
-- creates Artifact Registry (optional for this demo)
+- (optionally) creates a VPC connector
+- creates Artifact Registry
 - creates a runtime service account
 - deploys a public Cloud Run service (scale-to-zero)
 
-## Run
+## Apply (recommended)
+
 ```bash
-terraform init
-terraform apply -var="project_id=YOUR_PROJECT_ID"
+make bootstrap-state
+make example-apply EXAMPLE=cloud_run_demo
 ```
 
 ## Clean up
+
 ```bash
-terraform destroy -var="project_id=YOUR_PROJECT_ID"
+make example-destroy EXAMPLE=cloud_run_demo
 ```
