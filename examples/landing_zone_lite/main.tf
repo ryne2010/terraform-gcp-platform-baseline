@@ -9,11 +9,11 @@ module "core_services" {
 }
 
 module "artifact_registry" {
-  source      = "../../modules/artifact_registry"
-  project_id  = var.project_id
-  region      = var.region
+  source        = "../../modules/artifact_registry"
+  project_id    = var.project_id
+  region        = var.region
   repository_id = var.artifact_repo_name
-  labels      = {
+  labels = {
     app = "terraform-gcp-platform"
     env = "landing-zone"
   }

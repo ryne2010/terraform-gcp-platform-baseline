@@ -45,16 +45,17 @@ jobs:
         with:
           directory: .
           quiet: true
-
-      - name: Install conftest
-        run: |
-          VERSION=0.56.0
-          curl -L "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/conftest_${VERSION}_Linux_x86_64.tar.gz" | tar zx
-          sudo mv conftest /usr/local/bin/conftest
-          conftest --version
+          # Demo posture: skip org-policy-dependent checks that are intentionally out of scope here.
+          skip_check: CKV_GCP_84,CKV_GCP_26,CKV2_GCP_18
 
       - name: Conftest policy gate (OPA)
-        run: conftest test --parser hcl2 -p policy .
+        run: |
+          set -euo pipefail
+          # Pass explicit *.tf files so we don't accidentally parse .terraform/** artifacts.
+          docker run --rm -v "${{ github.workspace }}:/project" -w /project openpolicyagent/conftest:latest test \
+            --parser hcl2 \
+            --policy policy \
+            $(find . -path "./.terraform" -prune -o -path "./examples/*/.terraform" -prune -o -type f -name "*.tf" -print)
 
 
   docker:

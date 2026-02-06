@@ -46,12 +46,12 @@ module "grounded_knowledge" {
   memory        = "512Mi"
 
   env_vars = {
-    "PUBLIC_DEMO_MODE"        = "1"
-    "BOOTSTRAP_DEMO_CORPUS"   = "1"
-    "LLM_PROVIDER"            = "extractive"
-    "EMBEDDINGS_BACKEND"      = "hash"
-    "OCR_ENABLED"             = "1"
-    "APP_ENV"                 = "demo"
+    "PUBLIC_DEMO_MODE"      = "1"
+    "BOOTSTRAP_DEMO_CORPUS" = "1"
+    "LLM_PROVIDER"          = "extractive"
+    "EMBEDDINGS_BACKEND"    = "hash"
+    "OCR_ENABLED"           = "1"
+    "APP_ENV"               = "demo"
   }
 
   labels = {

@@ -30,7 +30,7 @@ resource "google_storage_bucket" "tfstate" {
   }
 
   labels = {
-    purpose = "tfstate"
+    purpose    = "tfstate"
     managed_by = "terraform"
   }
 }
@@ -73,6 +73,42 @@ resource "google_storage_bucket_iam_member" "ci_tfstate_bucket_reader" {
   member = "serviceAccount:${google_service_account.ci.email}"
 }
 
+# Optional: config bucket for storing backend.hcl + terraform.tfvars (single source of truth for CI)
+resource "google_storage_bucket" "config" {
+  name                        = var.config_bucket_name
+  location                    = "US"
+  uniform_bucket_level_access = true
+  versioning {
+    enabled = true
+  }
+
+  public_access_prevention = "enforced"
+
+  lifecycle_rule {
+    condition { age = 90 }
+    action { type = "Delete" }
+  }
+
+  labels = {
+    purpose    = "config"
+    managed_by = "terraform"
+  }
+}
+
+resource "google_storage_bucket_iam_member" "ci_config_reader" {
+  bucket = google_storage_bucket.config.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.ci.email}"
+}
+
+resource "google_storage_bucket_iam_member" "ci_config_writer" {
+  count  = var.enable_config_bucket_write ? 1 : 0
+  bucket = google_storage_bucket.config.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.ci.email}"
+}
+
+
 module "github_oidc" {
   source = "../../modules/github_oidc"
 
@@ -81,8 +117,7 @@ module "github_oidc" {
   pool_id     = var.workload_identity_pool_id
   provider_id = var.workload_identity_provider_id
 
-  github_organization = var.github_organization
-  github_repository   = var.github_repository
+  github_repository = var.github_repository
 
   service_account_email = google_service_account.ci.email
 }

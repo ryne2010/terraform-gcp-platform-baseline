@@ -12,3 +12,8 @@ output "tfstate_bucket" {
   description = "Set this as GitHub Variable: TFSTATE_BUCKET"
   value       = google_storage_bucket.tfstate.name
 }
+
+output "config_bucket" {
+  description = "Config bucket name (recommended for storing backend.hcl + terraform.tfvars)."
+  value       = google_storage_bucket.config.name
+}

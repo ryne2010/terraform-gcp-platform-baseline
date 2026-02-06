@@ -9,14 +9,9 @@ variable "region" {
   default     = "us-central1"
 }
 
-variable "github_organization" {
-  type        = string
-  description = "GitHub organization or user that owns the repo (e.g., 'my-org')."
-}
-
 variable "github_repository" {
   type        = string
-  description = "GitHub repository name (e.g., 'grounded-knowledge-platform')."
+  description = "GitHub repository in OWNER/REPO format (e.g., 'my-org/my-repo')."
 }
 
 variable "ci_service_account_id" {
@@ -40,4 +35,15 @@ variable "workload_identity_provider_id" {
   type        = string
   description = "Workload Identity Provider ID."
   default     = "github"
+}
+
+variable "config_bucket_name" {
+  type        = string
+  description = "GCS bucket name used to store backend.hcl + terraform.tfvars for CI."
+}
+
+variable "enable_config_bucket_write" {
+  type        = bool
+  description = "If true, grant CI roles/storage.objectAdmin on the config bucket (lets CI update terraform.tfvars)."
+  default     = true
 }
